@@ -1,31 +1,87 @@
-import { StyleSheet } from 'react-native';
+import useAuthStore from "@/hooks/useAuth";
+import { apiUrl } from "@/lib/url";
+import axios from "axios";
+import { Link, Stack, useFocusEffect } from "expo-router"; // Import useFocusEffect from expo-router
+import React, { useState } from "react";
+import { FlatList, Pressable, StyleSheet, View } from "react-native";
+import { FAB, Text } from "react-native-paper";
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+const MyComponent = () => {
+  const [dict, setDict] = useState([]);
+  const { id } = useAuthStore();
 
-export default function TabOneScreen() {
+  // Fetch data every time the component gains focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
+
+  const fetchData = async () => {
+    try {
+      const res = await axios.get(`${apiUrl}/dictionary/${id}`);
+      const { dictionary } = res.data;
+      setDict(dictionary);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const renderItem = ({ item }: { item: any }) => (
+    <Link href={`/${item.id}`} asChild>
+      <Pressable style={styles.card}>
+        <View style={styles.cardContent}>
+          <Text style={styles.cardTitle}>{item.title}</Text>
+          <Text>{item.description}</Text>
+        </View>
+      </Pressable>
+    </Link>
+  );
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+    <View style={{ flex: 1, padding: 10 }}>
+      <Stack.Screen
+        options={{
+          title: "Home",
+        }}
+      />
+      <FlatList
+        data={dict}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+      />
+      <Link href={"/add"} asChild>
+        <FAB
+          style={{ position: "absolute", margin: 16, right: 0, bottom: 0 }}
+          icon="plus"
+        />
+      </Link>
+      <View></View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  card: {
+    backgroundColor: "#ffffff",
+    margin: 10,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  cardContent: {
+    padding: 10,
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  cardTitle: {
+    fontWeight: "bold",
+    fontSize: 18,
+    marginBottom: 5,
   },
 });
+
+export default MyComponent;

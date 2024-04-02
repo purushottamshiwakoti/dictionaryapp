@@ -1,14 +1,31 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import EditScreenInfo from "@/components/EditScreenInfo";
+import { Text, View } from "@/components/Themed";
+import { Link, Stack, useRouter } from "expo-router";
+import { Button } from "react-native-paper";
+import useAuthStore from "@/hooks/useAuth";
 
 export default function TabTwoScreen() {
+  const { fullName, logout } = useAuthStore();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/(login)");
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab Two</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/two.tsx" />
+      <Stack.Screen
+        options={{
+          title: "Profile",
+        }}
+      />
+      <Text style={styles.title}>Welcome {fullName} </Text>
+      <Button mode="outlined" style={{ marginTop: 10 }} onPress={handleLogout}>
+        Logout
+      </Button>
     </View>
   );
 }
@@ -16,16 +33,16 @@ export default function TabTwoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   separator: {
     marginVertical: 30,
     height: 1,
-    width: '80%',
+    width: "80%",
   },
 });

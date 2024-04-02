@@ -1,0 +1,1 @@
+export const apiUrl="https://dictionaryapi-red.vercel.app/api"
